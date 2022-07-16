@@ -1,0 +1,32 @@
+name: $(date:yyyyMMdd)$(rev:.r)
+resources:
+  repositories:
+  - repository: self
+    type: git
+    ref: master
+jobs:
+- job: Job_1
+  displayName: Agent job 1
+  pool:
+    vmImage: ubuntu-20.04
+  steps:
+  - checkout: self
+    clean: true
+  - task: Docker@0
+    displayName: Build an image
+    inputs:
+      azureSubscriptionEndpoint: 306b1b02-2899-48f8-be1e-04fd25754551
+      azureContainerRegistry: '{"loginServer":"acrdockerazure.azurecr.io", "id" : "/subscriptions/03ab6183-3a9e-47d2-a279-a2b7dde7f8ca/resourceGroups/acrRg/providers/Microsoft.ContainerRegistry/registries/acrDockerAzure"}'
+  - task: Docker@0
+    displayName: Push an image
+    inputs:
+      azureSubscriptionEndpoint: f73a11ea-2d67-4409-89be-423ceea6c369
+      azureContainerRegistry: '{"loginServer":"acrdockerazure.azurecr.io", "id" : "/subscriptions/03ab6183-3a9e-47d2-a279-a2b7dde7f8ca/resourceGroups/acrRg/providers/Microsoft.ContainerRegistry/registries/acrDockerAzure"}'
+      action: Push an image
+  - task: CopyFiles@2
+    displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+    inputs:
+      TargetFolder: $(build.artifactstagingdirectory)
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: drop'
+...
